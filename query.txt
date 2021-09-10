@@ -1,4 +1,4 @@
---Вариант 1, без использования WITH
+--Р’Р°СЂРёР°РЅС‚ 1, Р±РµР· РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ WITH
 SELECT a.name
     FROM (
         SELECT ab.author_id, SUM(sum_) AS sum_by_author
@@ -38,7 +38,7 @@ SELECT a.name
                     WHERE ab.book_id = bm.book_id
                     GROUP BY ab.author_id)) AND a.id = author_id;
 
---Вариант 2, c использованием WITH, запускается не везде
+--Р’Р°СЂРёР°РЅС‚ 2, c РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј WITH, Р·Р°РїСѓСЃРєР°РµС‚СЃСЏ РЅРµ РІРµР·РґРµ
 WITH parameter AS (
         SELECT ab.author_id, SUM(sum_) AS sum_by_author
             FROM author_book AS ab
