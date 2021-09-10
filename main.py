@@ -28,7 +28,8 @@ cursor.execute('''
 		FROM (
 			SELECT bo.student_id, bo.borrow_date, bo.return_date
         		FROM borrow AS bo
-        		WHERE return_date - borrow_date > time)
+        		WHERE return_date <> 0
+			AND return_date - borrow_date > time)
     	JOIN student AS s
     	WHERE s.id = student_id
     	GROUP BY s.id;
@@ -44,7 +45,7 @@ cursor.execute('''
         FROM (
             SELECT bo.student_id, bo.borrow_date, bo.return_date
                 FROM borrow AS bo
-                WHERE return_date = 'None'
+                WHERE return_date = 0
                 AND CURDATE() - borrow_date > time
                 )
         JOIN student AS s
