@@ -1,0 +1,64 @@
+--Вариант 1, без использования WITH
+SELECT a.name
+    FROM (
+        SELECT ab.author_id, SUM(sum_) AS sum_by_author
+            FROM author_book AS ab
+            JOIN (
+                SELECT bq.book_id, SUM(count_) AS sum_
+                FROM (
+                    SELECT bo.copy_id, COUNT(bo.copy_id) AS count_, c.book_id
+                    FROM (
+                        SELECT * FROM borrow
+                        WHERE CURDATE() - borrow_date < 10000) AS bo 
+                    JOIN copy AS c
+                    WHERE bo.copy_id = c.id
+                    AND CURDATE() - bo.borrow_date < 10000 
+                    GROUP BY copy_id) AS bq
+                GROUP BY bq.book_id) AS bm
+                WHERE ab.book_id = bm.book_id
+                GROUP BY ab.author_id)
+    JOIN author AS a
+        WHERE sum_by_author = (
+    SELECT MAX(sum_by_author) AS max_
+        FROM (
+            SELECT ab.author_id, SUM(sum_) AS sum_by_author
+                FROM author_book AS ab
+                JOIN (
+                    SELECT bq.book_id, SUM(count_) AS sum_
+                    FROM (
+                        SELECT bo.copy_id, COUNT(bo.copy_id) AS count_, c.book_id
+                        FROM (
+                            SELECT * FROM borrow
+                            WHERE CURDATE() - borrow_date < 10000) AS bo 
+                        JOIN copy AS c
+                        WHERE bo.copy_id = c.id
+                        AND CURDATE() - bo.borrow_date < 10000
+                        GROUP BY copy_id) AS bq
+                    GROUP BY bq.book_id) AS bm
+                    WHERE ab.book_id = bm.book_id
+                    GROUP BY ab.author_id)) AND a.id = author_id;
+
+--Вариант 2, c использованием WITH, запускается не везде
+WITH parameter AS (
+        SELECT ab.author_id, SUM(sum_) AS sum_by_author
+            FROM author_book AS ab
+            JOIN (
+                SELECT bq.book_id, SUM(count_) AS sum_
+                FROM (
+                    SELECT bo.copy_id, COUNT(bo.copy_id) AS count_, c.book_id
+                    FROM (
+                        SELECT * FROM borrow
+                        WHERE CURDATE() - borrow_date < 10000) AS bo 
+                    JOIN copy AS c
+                    WHERE bo.copy_id = c.id
+                    AND CURDATE() - bo.borrow_date < 10000 
+                    GROUP BY copy_id) AS bq
+                GROUP BY bq.book_id) AS bm
+                WHERE ab.book_id = bm.book_id
+                GROUP BY ab.author_id)
+SELECT a.name
+    FROM parameter
+    JOIN author AS a
+        WHERE parameter.sum_by_author = (
+    SELECT MAX(parameter.sum_by_author) AS max_
+        FROM parameter) AND a.id = parameter.author_id;
