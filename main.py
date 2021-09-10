@@ -22,7 +22,7 @@ student_list = cursor.fetchall()
 print('Самые читающие студенты')
 print(student_list)
 
-#Вариант 2 - "злостный читатель" тот, кто не вовремя сдает книги
+#Вариант 2 - "злостный читатель" тот, кто не вовремя сдал книгу
 cursor.execute('''
 	SELECT s.name 
 		FROM (
@@ -33,6 +33,24 @@ cursor.execute('''
     	WHERE s.id = student_id
     	GROUP BY s.id;
 			''')
+
+student_list = cursor.fetchall()
+print('Не сдающие книги вовремя студенты')
+print(student_list)
+
+#Вариант 3 - "злостный читатель" тот, кто не сдал книгу, хотя срок уже прошел   
+cursor.execute('''
+    SELECT s.name 
+        FROM (
+            SELECT bo.student_id, bo.borrow_date, bo.return_date
+                FROM borrow AS bo
+                WHERE return_date = 'None'
+                AND CURDATE() - borrow_date > time
+                )
+        JOIN student AS s
+        WHERE s.id = student_id
+        GROUP BY s.id;
+            ''')
 
 student_list = cursor.fetchall()
 print('Не сдающие книги вовремя студенты')
